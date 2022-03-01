@@ -2,6 +2,7 @@ from .kaotools import KaoTools
 
 
 def setup(bot):
+    bot.remove_command("invite")
     bot.add_cog(KaoTools(bot))
 
 

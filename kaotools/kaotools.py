@@ -273,13 +273,14 @@ class KaoTools(
         """
         if not user:
             user = ctx.author
-        png = user.avatar_url_as(format="png", size=4096)
-        jpg = user.avatar_url_as(format="jpg", size=4096)
-        gif = user.avatar_url_as(static_format="png", size=4096)
-        size_512 = user.avatar_url_as(size=512)
-        size_1024 = user.avatar_url_as(size=1024)
-        size_2048 = user.avatar_url_as(size=2048)
-        size_4096 = user.avatar_url_as(size=4096)
+        av = user.display_avatar.with_size(4096)
+        png = av.with_format("png")
+        jpg = av.with_format("jpg")
+        gif = av.with_static_format("png")
+        size_512 = av.with_size(512)
+        size_1024 = av.with_size(1024)
+        size_2048 = av.with_size(2048)
+        size_4096 = av.with_size(4096)
         m = (
             f"Formats: [PNG]({png}) | [JPG]({jpg}) | [GIF]({gif})\n"
             f"Sizes: [512]({size_512}) | [1024]({size_1024}) | [2048]({size_2048}) | [4096]({size_4096})"
@@ -289,7 +290,7 @@ class KaoTools(
             title=f"{user.name}'s avatar",
             description=m,
         )
-        embed.set_image(url=user.avatar_url_as(size=4096))
+        embed.set_image(url=av)
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["oldestmessage"])
