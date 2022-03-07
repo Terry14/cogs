@@ -5,5 +5,5 @@
     "description" : "Protects users against phishing attacks.",
     "install_msg": "Thanks for installing!",
     "tags" : ["phishing", "moderation", "automod"],
-    "hidden" : true
+    "min_bot_version" : "3.5.0"
 }

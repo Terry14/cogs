@@ -5,5 +5,6 @@
     "short": "Injects aliases into the discord.py command objects.",
     "description": "Injects aliases into the discord.py command objects.",
     "tags": ["aliases", "alias"],
-    "hidden": true
+    "hidden": true,
+    "min_bot_version" : "3.5.0"
 }

@@ -5,5 +5,6 @@
     "short": "A collection of tools made for kaogurai.",
     "description": "A collection of tools made for kaogurai.",
     "requirements": ["colorgram.py", "pillow", "Unidecode", "apscheduler"],
-    "hidden": true
+    "hidden": true,
+    "min_bot_version" : "3.5.0"
 }
