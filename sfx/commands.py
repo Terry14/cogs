@@ -12,7 +12,7 @@ class BaseCommandsMixin(MixinMeta):
     @commands.command(usage="<text> [--download]")
     @commands.cooldown(rate=1, per=3, type=discord.ext.commands.cooldowns.BucketType.user)
     @commands.guild_only()
-    async def tts(self, ctx, text: str):
+    async def tts(self, ctx, *, text: str):
         """
         Plays the given text as TTS in your current voice channel.
 
@@ -44,10 +44,15 @@ class BaseCommandsMixin(MixinMeta):
             await self.config.user(ctx.author).voice.clear()
             author_voice = await self.config.user(ctx.author).voice()
 
-        url = self.generate_url(author_voice, author_translate, text)
+        url = self.generate_url(
+            author_voice, author_translate, text.replace("--download", "")
+        )
 
         if "--download" in text:
+<<<<<<< HEAD
             text.replace("--download", "")
+=======
+>>>>>>> fbe4b55c6c1ba1d8dadc0f1dc1015e4e9a406578
             if text == "":
                 await ctx.send_help()
                 return
@@ -86,7 +91,11 @@ class BaseCommandsMixin(MixinMeta):
     @commands.cooldown(rate=1, per=3, type=discord.ext.commands.cooldowns.BucketType.user)
     @commands.guild_only()
     @commands.check(sfx_check)
+<<<<<<< HEAD
     async def sfx(self, ctx, sound: str):
+=======
+    async def sfx(self, ctx, *, sound: str):
+>>>>>>> fbe4b55c6c1ba1d8dadc0f1dc1015e4e9a406578
         """
         Plays a sound effect in your current voice channel.
 
@@ -115,7 +124,7 @@ class BaseCommandsMixin(MixinMeta):
             async with self.session.get(
                 f"{self.SFX_API_URL}/search/text/",
                 params={
-                    "query": sound,
+                    "query": sound.replace("--download", ""),
                     "token": self.key,
                     "filter": "duration:[0.5 TO 15]",
                 },
@@ -154,7 +163,10 @@ class BaseCommandsMixin(MixinMeta):
             track_info = (name, ctx.author)
 
             if "--download" in sound:
+<<<<<<< HEAD
                 sound.replace("--download", "")
+=======
+>>>>>>> fbe4b55c6c1ba1d8dadc0f1dc1015e4e9a406578
                 if sound == "":
                     await ctx.send_help()
                     return
