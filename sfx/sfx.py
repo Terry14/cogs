@@ -6,6 +6,11 @@ import lavalink
 from discord.ext import tasks
 from redbot.core import Config, commands
 
+try:
+    from lavalink import NodeNotFound as NoLavalinkNode
+except ImportError:
+    NoLavalinkNode = IndexError
+
 from .abc import CompositeMetaClass
 from .autotts import AutoTTSMixin
 from .channels import TTSChannelMixin
@@ -25,7 +30,7 @@ class SFX(
 ):
     """Plays sound effects, text-to-speech, and sounds when you join or leave a voice channel."""
 
-    __version__ = "5.1.11"
+    __version__ = "5.2.2"
 
     TTS_API_URL = "https://api.kaogurai.xyz/v1/tts"
     SFX_API_URL = "https://freesound.org/apiv2"
@@ -49,7 +54,7 @@ class SFX(
         self.config.register_guild(**guild_config)
         lavalink.register_event_listener(self.ll_check)
         self.bot.loop.create_task(self.set_token())
-        self.bot.loop.create_task(self.get_voices())
+        self.bot.loop.create_task(self.maybe_get_voices())
         self.last_track_info = {}
         self.current_sfx = {}
         self.repeat_state = {}
@@ -92,8 +97,8 @@ class SFX(
             if req.status == 200:
                 self.voices = await req.json()
 
-    @tasks.loop(seconds=15)
-    async def get_voices_server_down(self):
+    @tasks.loop(seconds=5)
+    async def maybe_get_voices(self):
         """
         If the TTS API was down for some reason and we can't get the voices, we'll try again every 15 seconds.
 
@@ -150,11 +155,23 @@ class SFX(
             if v["name"] == voice:
                 return v
 
+    async def can_tts(self, message):
+        ctx = await self.bot.get_context(message)
+        command = self.bot.get_command("tts")
+
+        try:
+            can = await command.can_run(ctx, change_permission_state=False)
+        except commands.CommandError:
+            can = False
+
+        return can
+
     async def play_tts(
         self,
         user: discord.Member,
         voice_channel: discord.VoiceChannel,
         text_channel: discord.TextChannel,
+        type: str,
         text: str,
     ):
         """
@@ -176,7 +193,7 @@ class SFX(
         await self.play_sound(
             voice_channel,
             text_channel,
-            "tts",
+            type,
             url,
             track_info,
         )
@@ -188,12 +205,18 @@ class SFX(
         Parameters:
         vc: The voice channel to play the audio in.
         channel: The text channel to send messages in. Can be None.
-        type: The type of SFX to play. (joinleave, tts, sfx, autotts)
+        type: The type of SFX to play. (joinleave, tts, sfx, autotts, ttschannel)
         url: The URL to play.
         track_info: Tuple of track name and author (discord.py object).
         """
         try:
             player = lavalink.get_player(vc.guild.id)
+        except NoLavalinkNode:  # Lavalink hasn't been initialised yet
+            if channel and type != "autotts":
+                await channel.send(
+                    "Either the Audio cog is not loaded or lavalink has not been initialized yet. If this continues to happen, please contact the bot owner."
+                )
+                return
         except KeyError:
             player = await lavalink.connect(vc)
 

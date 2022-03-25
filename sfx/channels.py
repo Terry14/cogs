@@ -111,6 +111,7 @@ class TTSChannelMixin(MixinMeta):
             or not await self.bot.allowed_by_whitelist_blacklist(who=message.author)
             or await self.bot.cog_disabled_in_guild(self, message.guild)
             or message.author.id in self.autotts
+            or not await self.can_tts(message)
         ):
             return
 
@@ -122,9 +123,16 @@ class TTSChannelMixin(MixinMeta):
             await message.channel.send("You are not connected to a voice channel.")
             return
 
+        if not message.author.voice.channel.permissions_for(message.author).speak:
+            await message.channel.send(
+                "You don't have permission to speak in this channel."
+            )
+            return
+
         await self.play_tts(
             message.author,
             message.author.voice.channel,
             message.channel,
+            "ttschannel",
             message.clean_content,
         )

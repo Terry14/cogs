@@ -1,5 +1,7 @@
 import asyncio
 import contextlib
+from enum import Enum
+from io import BytesIO
 
 import aiohttp
 import discord
@@ -8,12 +10,35 @@ from redbot.core.utils.menus import start_adding_reactions
 from redbot.core.utils.predicates import ReactionPredicate
 
 
+class Styles(Enum):
+    SYNTHWAVE = 1
+    UKIYOE = 2
+    NONE = 3
+    STEAMPUNK = 4
+    FANTASY = 5
+    VIBRANT = 6
+    HD = 7
+    PASTEL = 8
+    PSYCHIC = 9
+    DARKFANTASY = 10
+    MYSTICAL = 11
+    FESTIVE = 12
+    BAROQUE = 13
+    ETCHING = 14
+    SDALI = 15
+    WUHTERCUHLER = 16
+    PROVENANCE = 17
+    ROSEGOLD = 18
+    MOONWALKER = 19
+    BLACKLIGHT = 20
+
+
 class Wombo(commands.Cog):
     """
     Generate incredible art using AI.
     """
 
-    __version__ = "1.1.1"
+    __version__ = "1.1.5"
 
     def __init__(self, bot):
         self.bot = bot
@@ -30,30 +55,10 @@ class Wombo(commands.Cog):
         return f"{pre_processed}\n\nCog Version: {self.__version__}"
 
     def get_style(self, style):
-        styles = {
-            "synthwave": 1,
-            "ukiyoe": 2,
-            "none": 3,
-            "steampunk": 4,
-            "fantasy": 5,
-            "vibrant": 6,
-            "hd": 7,
-            "pastel": 8,
-            "psychic": 9,
-            "darkfantasy": 10,
-            "mystical": 11,
-            "festive": 12,
-            "baroque": 13,
-            "etching": 14,
-            "sdali": 15,
-            "wuhtercuhler": 16,
-            "provenance": 17,
-            "rosegold": 18,
-        }
-
-        style = style.lower()
-        if style in styles:
-            return styles[style]
+        style = style.upper()
+        enum = getattr(Styles, style)
+        if enum:
+            return enum.value
 
     async def check_nsfw(self, link):
         params = {"url": link}
@@ -62,7 +67,6 @@ class Wombo(commands.Cog):
         ) as req:
             if req.status == 200:
                 resp = await req.json()
-                print(resp)
                 if "error" in resp.keys():
                     return False
                 results = resp["safeSearchAnnotation"]
@@ -116,10 +120,9 @@ class Wombo(commands.Cog):
         ) as req:
             if req.status != 200:
                 return
-
             resp = await req.json()
 
-        for x in range(50):
+        for x in range(25):
             async with self.session.get(
                 f"https://app.wombo.art/api/tasks/{session_id}", headers=headers
             ) as req:
@@ -130,7 +133,7 @@ class Wombo(commands.Cog):
                 if resp["result"]:
                     return resp["result"]["final"]
 
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(3)
 
     @commands.command(aliases=["draw", "aiart"], usage="<text> [--style <style>]")
     async def wombo(self, ctx, *, text: str):
@@ -138,7 +141,7 @@ class Wombo(commands.Cog):
         Generate art using AI.
 
         Possible styles:
-        synthwave, ukiyoe, none, steampunk, fantasy, vibrant, hd, pastel, psychic, darkfantasy, mystical, festive, baroque, etching, sdali, wuhtercuhler, provenance, rosegold
+        synthwave, ukiyoe, none, steampunk, fantasy, vibrant, hd, pastel, psychic, darkfantasy, mystical, festive, baroque, etching, sdali, wuhtercuhler, provenance, rosegold, moonwalker, blacklight
         """
         if len(text) > 100:
             await ctx.send("The text needs to be 100 characters or less.")
@@ -182,8 +185,18 @@ class Wombo(commands.Cog):
                 await ctx.send("Failed to generate art. Please try again later.")
                 return
 
+            async with self.session.get(link) as req:
+                if req.status != 200:
+                    await ctx.send("Something went wrong when downloading the image.")
+                    return
+                data = await req.read()
+
+            vfile = BytesIO(data)
+            vfile.seek(0)
+            file = discord.File(vfile, filename="result.jpg")
+
             embed = discord.Embed(title="Here's your art!", color=await ctx.embed_color())
-            embed.set_image(url=link)
+            embed.set_image(url="attachment://result.jpg")
 
             if not ctx.channel.is_nsfw():
                 is_nsfw = await self.check_nsfw(link)
@@ -208,7 +221,7 @@ class Wombo(commands.Cog):
                                 content=f"{ctx.author.mention}, sending image..."
                             )
                         try:
-                            await ctx.author.send(embed=embed)
+                            await ctx.author.send(embed=embed, file=file)
                         except discord.Forbidden:
                             await ctx.send(
                                 "Failed to send image. Please make sure you have DMs enabled."
@@ -219,7 +232,7 @@ class Wombo(commands.Cog):
                             await m.delete()
                         return
 
-            try:
-                await m.edit(content=None, embed=embed)
-            except discord.NotFound:
-                await ctx.send(embed=embed)
+            with contextlib.suppress(discord.NotFound):
+                await m.delete()
+
+            await ctx.send(embed=embed, file=file)
