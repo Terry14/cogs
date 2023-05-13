@@ -390,7 +390,7 @@ class BaseCommandsMixin(MixinMeta):
                 # Wait for the command to complete
                 stdout, stderr = await process.communicate()
 
-                async with open(formatted_date + "tts.wav", "r") as f2
+                async with open(formatted_date + "tts.wav", "r") as f2:
                     await ctx.send(
                         content="Here's your TTS file!",
                         file=discord.File(fp=f2, filename="tts.wav"),
