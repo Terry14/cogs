@@ -397,6 +397,8 @@ class BaseCommandsMixin(MixinMeta):
                 content="Here's your TTS file!",
                 file=discord.File(fp=filename + ".out.wav", filename="tts.wav"),
             )
+            
+        if args["download"]: return
 
         track_info = ("Text to Speech", ctx.author)
         await self.play_sound(
@@ -493,6 +495,8 @@ class BaseCommandsMixin(MixinMeta):
                 content="Here's your TTS file!",
                 file=discord.File(fp=filename + ".out.wav", filename="tts.wav"),
             )
+
+        if args["download"]: return
 
         track_info = ("Text to Speech", ctx.author)
         await self.play_sound(
