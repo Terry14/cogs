@@ -360,16 +360,10 @@ class BaseCommandsMixin(MixinMeta):
             args["translate"],
             args["text"],
             args["speed"],
-            "wav" if args["download"] else "ogg_opus",
+            "wav",
         )
 
-        if args["download"]:
-            if not ctx.channel.permissions_for(ctx.guild.me).attach_files:
-                await ctx.send(
-                    "I do not have permissions to send files in this channel."
-                )
-                return
-
+        async with ctx.typing():
             async with self.session.get(url, headers=self.TTS_API_HEADERS) as resp:
                 if resp.status != 200:
                     await ctx.send("Something went wrong. Try again later.")
@@ -394,17 +388,118 @@ class BaseCommandsMixin(MixinMeta):
                 async with aiofiles.open("/home/ubuntu/sovits/log", 'w') as f2:
                     await f2.write(stderr.decode())
 
+            if not ctx.channel.permissions_for(ctx.guild.me).attach_files:
                 await ctx.send(
-                    content="Here's your TTS file!",
-                    file=discord.File(fp=filename + ".out.wav", filename="tts.wav"),
+                    "I do not have permissions to send files in this channel."
                 )
                 return
+            await ctx.send(
+                content="Here's your TTS file!",
+                file=discord.File(fp=filename + ".out.wav", filename="tts.wav"),
+            )
 
         track_info = ("Text to Speech", ctx.author)
         await self.play_sound(
             ctx.author.voice.channel,
             ctx.channel,
             "tts",
-            url,
+            filename + ".out.wav",
             track_info,
         )
+
+    @commands.command()
+    @commands.cooldown(
+        rate=1, per=3, type=discord.ext.commands.cooldowns.BucketType.user
+    )
+    @commands.guild_only()
+    async def ball(self, ctx: Context, *, args: TTSConverter):
+        """
+        Plays the given text as TTS in your current voice channel using Cole Cassidy's voice.
+
+        Arguments:
+            text: The text to be spoken.
+            `--voice`: The voice to use (later converted to Cassidy).
+            `--speed`: The speed to speak at.
+            `--download`: Whether to download the file instead of playing it.
+            `--translate`: Whether to translate the text to the voice language. Use `--no-translate` if your default is `True`.
+
+            `--voices`: Lists all available voices. Cannot be used with other arguments.
+        """
+        if not args:
+            return
+
+        if not args["download"]:
+            if not ctx.author.voice or not ctx.author.voice.channel:
+                await ctx.send("You are not connected to a voice channel.")
+                return
+
+            if ctx.guild.me.voice and ctx.guild.me.voice.channel:
+                if ctx.author.voice.channel != ctx.guild.me.voice.channel:
+                    await ctx.send("You are not in my voice channel.")
+                    return
+            else:
+                current_perms = ctx.author.voice.channel.permissions_for(ctx.guild.me)
+                if not current_perms.speak or not current_perms.connect:
+                    await ctx.send(
+                        "I do not have permissions to connect to and speak in this channel."
+                    )
+                    return
+
+            if not ctx.author.voice.channel.permissions_for(ctx.author).speak:
+                await ctx.channel.send(
+                    "You don't have permission to speak in this channel."
+                )
+                return
+
+        url = self.generate_url(
+            args["voice"],
+            args["translate"],
+            args["text"],
+            args["speed"],
+            "wav",
+        )
+
+        async with ctx.typing():
+            async with self.session.get(url, headers=self.TTS_API_HEADERS) as resp:
+                if resp.status != 200:
+                    await ctx.send("Something went wrong. Try again later.")
+                    return
+                data = await resp.read()
+                f = io.BytesIO(data)
+                f.seek(0)
+                now = datetime.now()
+                filename = f"/home/ubuntu/sovits/{now.strftime('%Y-%m-%d_%H:%M:%S')}.wav"
+                async with aiofiles.open(filename, 'wb') as f2:
+                    await f2.write(f.getvalue())
+
+                # Run the terminal command asynchronously
+                process = await asyncio.create_subprocess_shell(
+                    f'/bin/bash -c "source ~/redenv35/bin/activate && svc infer {filename} -m /home/ubuntu/sovits/WreckingBallG_429.pth -c /home/ubuntu/sovits/wreckingballconfig.json -o {filename}.out.wav"',
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE)
+
+                # Wait for the command to complete
+                stdout, stderr = await process.communicate()
+
+                async with aiofiles.open("/home/ubuntu/sovits/log", 'w') as f2:
+                    await f2.write(stderr.decode())
+
+            if not ctx.channel.permissions_for(ctx.guild.me).attach_files:
+                await ctx.send(
+                    "I do not have permissions to send files in this channel."
+                )
+                return
+            await ctx.send(
+                content="Here's your TTS file!",
+                file=discord.File(fp=filename + ".out.wav", filename="tts.wav"),
+            )
+
+        track_info = ("Text to Speech", ctx.author)
+        await self.play_sound(
+            ctx.author.voice.channel,
+            ctx.channel,
+            "tts",
+            filename + ".out.wav",
+            track_info,
+        )
+
