@@ -313,7 +313,7 @@ class BaseCommandsMixin(MixinMeta):
         rate=1, per=3, type=discord.ext.commands.cooldowns.BucketType.user
     )
     @commands.guild_only()
-    async def cass(self, ctx: Context, *, sound: str):
+    async def cass(self, ctx: Context, *, args: TTSConverter):
         """
         Plays the given text as TTS in your current voice channel using Cole Cassidy's voice.
 
