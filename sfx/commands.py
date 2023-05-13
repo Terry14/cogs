@@ -1,6 +1,8 @@
 import argparse
 import asyncio
+from datetime import datetime
 import io
+import subprocess
 from typing import Any, List
 
 import discord
@@ -374,10 +376,25 @@ class BaseCommandsMixin(MixinMeta):
                 data = await resp.read()
                 f = io.BytesIO(data)
                 f.seek(0)
-                await ctx.send(
-                    content="Here's your TTS file!",
-                    file=discord.File(fp=f, filename="tts.wav"),
-                )
+                now = datetime.now()
+                formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+                async with open(formatted_date + ".wav", 'wb') as f2:
+                    await f2.write(my_bytes_io.getvalue())
+
+                 # Run the terminal command asynchronously
+                process = await asyncio.create_subprocess_shell(
+                    f'svc infer {formatted_date}.wav -m /home/ubuntu/sovits/CassG_1340.pth -c /home/ubuntu/sovits/CassG_1340.pth -o {formatted_date}tts.wav',
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE)
+
+                # Wait for the command to complete
+                stdout, stderr = await process.communicate()
+
+                async with open(formatted_date + "tts.wav", "r") as f2
+                    await ctx.send(
+                        content="Here's your TTS file!",
+                        file=discord.File(fp=f2, filename="tts.wav"),
+                    )
                 return
 
         track_info = ("Text to Speech", ctx.author)
