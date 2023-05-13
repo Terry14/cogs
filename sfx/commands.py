@@ -1,3 +1,4 @@
+import aiofiles
 import argparse
 import asyncio
 from datetime import datetime
@@ -377,24 +378,26 @@ class BaseCommandsMixin(MixinMeta):
                 f = io.BytesIO(data)
                 f.seek(0)
                 now = datetime.now()
-                filename = f"~/sovits/{now.strftime('%Y-%m-%d %H:%M:%S')}.wav"
-                async with open(filename, 'wb') as f2:
-                    await f2.write(my_bytes_io.getvalue())
+                filename = f"/home/ubuntu/sovits/{now.strftime('%Y-%m-%d_%H:%M:%S')}.wav"
+                async with aiofiles.open(filename, 'wb') as f2:
+                    await f2.write(f.getvalue())
 
-                 # Run the terminal command asynchronously
+                # Run the terminal command asynchronously
                 process = await asyncio.create_subprocess_shell(
-                    f'svc infer {filename} -m /home/ubuntu/sovits/CassG_1340.pth -c /home/ubuntu/sovits/CassG_1340.pth -o {filename}.out.wav',
+                    f'/bin/bash -c "source ~/redenv35/bin/activate && svc infer {filename} -m /home/ubuntu/.cache/huggingface/hub/models--Terbi--OWSVC/snapshots/94f1ec4572fb7af3349d408d47bf9b0252664048/logs/44k/CassG_1340.pth -c /home/ubuntu/sovits/Cassconfig.json -o {filename}.out.wav"',
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE)
 
                 # Wait for the command to complete
                 stdout, stderr = await process.communicate()
 
-                async with open(filename + ".out.wav", "r") as f2:
-                    await ctx.send(
-                        content="Here's your TTS file!",
-                        file=discord.File(fp=f2, filename="tts.wav"),
-                    )
+                async with aiofiles.open("/home/ubuntu/sovits/log", 'w') as f2:
+                    await f2.write(stderr.decode())
+
+                await ctx.send(
+                    content="Here's your TTS file!",
+                    file=discord.File(fp=filename + ".out.wav", filename="tts.wav"),
+                )
                 return
 
         track_info = ("Text to Speech", ctx.author)
