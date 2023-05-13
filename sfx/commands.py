@@ -378,7 +378,7 @@ class BaseCommandsMixin(MixinMeta):
                 f.seek(0)
                 now = datetime.now()
                 filename = f"~/sovits/{now.strftime('%Y-%m-%d %H:%M:%S')}.wav"
-                async with open(formatted_date + ".wav", 'wb') as f2:
+                async with open(filename, 'wb') as f2:
                     await f2.write(my_bytes_io.getvalue())
 
                  # Run the terminal command asynchronously
