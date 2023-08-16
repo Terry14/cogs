@@ -1,0 +1,20 @@
+{
+    "name": "translatege",
+    "author": [
+        "Terbi (Terbi14)"
+    ],
+    "short": "Adds -ge to messages",
+    "description": "Takes the previousge message andge ge-ises itge. Sorryge.",
+    "install_msg": "Helloge!!",
+    "tags": [
+        "fun",
+        "utility"
+    ],
+    "min_bot_version": "3.5.0",
+    "min_python_version": [
+        3,
+        11,
+        0
+    ],
+    "end_user_data_statement": "This cog does not persistently store data or metadata about users."
+}
