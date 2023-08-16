@@ -13,7 +13,7 @@ class Translatege(commands.Cog):
     """translatege."""
 
     __author__ = "Terbi"
-    __version__ = "1.0.0"
+    __version__ = "1.0.1"
     #
     # Red methods
     #
@@ -118,17 +118,17 @@ class Translatege(commands.Cog):
         # elif uwu in ("dad", "father"):
         #     uwu = "daddy"
         # Normal word conversion
-        else:
+        # else:
             # Protect specific word endings from changes
-            protected = ""
-            if ge == "the":
-                pass
-            elif ge[-1] in "bdgmnprsty" or ge[-2:] == "eo":
-                ge = ge + "ge"
-            elif ge[-2:] == "ch":
-                ge = ge[:-2] + "ge"
-            elif ge[-3:] == "ine":
-                ge = ge[:-3] + "inge"
+            # protected = ""
+        if ge == "the":
+            pass
+        elif ge[-1] in "bdgmnprsty" or ge[-2:] == "eo":
+            ge = ge + "ge"
+        elif ge[-2:] == "ch":
+            ge = ge[:-2] + "ge"
+        elif ge[-3:] == "ine":
+            ge = ge[:-3] + "inge"
 
         # If ending in ge, occasionally add more ge
         if ge[-2:] == "ge" and random.random() < 0.02:
