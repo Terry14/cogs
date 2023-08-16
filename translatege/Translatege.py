@@ -121,7 +121,7 @@ class Translatege(commands.Cog):
         # else:
             # Protect specific word endings from changes
             # protected = ""
-        if len(ge) <= 3 and ge not in ["and", "bed"]:
+        if len(ge) <= 2 or ge in ["the"]:
             pass
         elif ge[-1] in "bdgmnprsty" or ge[-2:] == "eo":
             ge = ge + "ge"
