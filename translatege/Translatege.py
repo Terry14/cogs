@@ -125,7 +125,7 @@ class Translatege(commands.Cog):
             pass
         elif ge[-1] in "bdgmnprsty" or ge[-2:] == "eo":
             ge = ge + "ge"
-        elif ge[-2:] in ["ch", "re"]:
+        elif ge[-2:] in ["ch", "ore"]:
             ge = ge[:-2] + "ge"
         elif ge[-3:] == "ine":
             ge = ge[:-3] + "inge"
