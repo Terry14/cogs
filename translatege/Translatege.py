@@ -121,7 +121,7 @@ class Translatege(commands.Cog):
         # else:
             # Protect specific word endings from changes
             # protected = ""
-        if len(ge) <= 2 or ge in ["the"]:
+        if len(ge) <= 2 or ge in ["the", "its"]:
             pass
         elif ge[-1] in "bdgmnprsy" or ge[-2:] in ["eo","ee"] :
             ge = ge + "ge"
