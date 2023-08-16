@@ -123,7 +123,7 @@ class Translatege(commands.Cog):
             # protected = ""
         if len(ge) <= 2 or ge in ["the"]:
             pass
-        elif ge[-1] in "bdgmnprsty" or ge[-2:] == "eo":
+        elif ge[-1] in "bdgmnprsty" or ge[-2:] in ["eo","ee"] :
             ge = ge + "ge"
         elif ge[-2:] in ["ch", "ore"]:
             ge = ge[:-2] + "ge"
