@@ -1,7 +1,7 @@
 """translate-ge cog for Red-DiscordBot by Terbi."""
 import random
 from contextlib import suppress
-from typing import ClassVar
+from typing import ClassVar, Union
 
 import discord
 from redbot.core import commands
@@ -32,7 +32,7 @@ class Translatege(commands.Cog):
     #
 
     @commands.command(aliases=["ge"])
-    async def translatege(self, ctx: commands.Context, *, text: str | None = None) -> None:
+    async def translatege(self, ctx: commands.Context, *, text: Union[str, None] = None) -> None:
         """translategeize the replied to message, previous message, or your own text."""
         if not text:
             if hasattr(ctx.message, "reference") and ctx.message.reference:
@@ -121,11 +121,11 @@ class Translatege(commands.Cog):
         # else:
             # Protect specific word endings from changes
             # protected = ""
-        if ge == "the":
+        if len(ge) <= 3 and ge != "and":
             pass
         elif ge[-1] in "bdgmnprsty" or ge[-2:] == "eo":
             ge = ge + "ge"
-        elif ge[-2:] == "ch":
+        elif ge[-2:] in ["ch", "re"]:
             ge = ge[:-2] + "ge"
         elif ge[-3:] == "ine":
             ge = ge[:-3] + "inge"

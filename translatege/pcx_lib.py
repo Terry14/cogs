@@ -20,7 +20,7 @@ MAX_EMBED_FIELD_SIZE = 1024
 
 async def type_message(
     destination: discord.abc.Messageable, content: str, **kwargs: Any  # noqa: ANN401
-) -> discord.Message | None:
+):
     """Simulate typing and sending a message to a destination.
 
     Will send a typing indicator, wait a variable amount of time based on the length
