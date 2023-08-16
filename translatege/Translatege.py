@@ -81,7 +81,7 @@ class Translatege(commands.Cog):
         https://github.com/senguyen1011/UwUinator
         """
         word = word.lower()
-        ge = word.rstrip(".?!,")
+        ge = word.rstrip(".?!,s")
         punctuations = word[len(ge) :]
         final_punctuation = punctuations[-1] if punctuations else ""
         extra_punctuation = punctuations[:-1] if punctuations else ""
