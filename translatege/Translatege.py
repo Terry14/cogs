@@ -131,8 +131,8 @@ class Translatege(commands.Cog):
             ge = ge[:-3] + "inge"
 
         # If ending in ge, occasionally add more ge
-        if ge[-2:] == "ge" and random.random() < 0.02:
-            ge += "ge"*random.randint(1,4)
+        # if ge[-2:] == "ge" and random.random() < 0.02:
+        #     ge += "ge"*random.randint(1,4)
 
         # Add back punctuations and return
         return ge + extra_punctuation + final_punctuation

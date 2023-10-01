@@ -273,8 +273,8 @@ class SFX(
         # There's already an SFX or TTS playing, so we can just skip it
         if vc.guild.id in self.current_sfx.keys() and self.current_sfx[vc.guild.id]:
             player.queue.insert(0, track)
-            await player.skip()
-            self.current_sfx[vc.guild.id] = track
+            # await player.skip()
+            # self.current_sfx[vc.guild.id] = track
             return
 
         # There's music playing, so we need to store what to set it back to
